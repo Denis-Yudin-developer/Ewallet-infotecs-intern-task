@@ -1,6 +1,14 @@
-POST http://localhost:8000/api/send
+GET http://localhost:8000/api/wallet/e240d825d255af751f5f55af8d9671beabdf2236c0a3b4e2639b3e182d994c88/balance
+Accept: application/json
+
+###
+POST http://localhost:8000/api/wallet/create
 Content-Type: application/json
 
-{}
+{
+  "id": "1",
+  "address": "qa3545453",
+  "balance": 3.5
+}
 
 ###

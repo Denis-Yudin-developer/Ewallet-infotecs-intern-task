@@ -1,0 +1,6 @@
+address: "0.0.0.0"
+port: "8080"
+
+db:
+    driverName: "sqlite3"
+    dataSourceName: "db.sqlite"
