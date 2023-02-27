@@ -4,7 +4,7 @@ import (
 	"Ewallet-infotecs/internal/model"
 	"database/sql"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -13,6 +13,10 @@ type TransactionHistorySqlite struct {
 }
 
 func (t TransactionHistorySqlite) Create(transaction model.Transaction) (int64, error) {
+	logrus.Printf("Перевод с адреса %s на адрес %s %f y.e.",
+		transaction.FromAddress,
+		transaction.ToAddress,
+		transaction.TransferAmount)
 	tx, err := t.db.Begin()
 	if err != nil {
 		return 0, err
@@ -27,19 +31,18 @@ func (t TransactionHistorySqlite) Create(transaction model.Transaction) (int64, 
 		transaction.TransferAmount,
 		timeNow.Format(time.RFC3339))
 
-	row, err :=
-		tx.Exec(query)
+	row, err := tx.Exec(query)
 	itemId, err := row.LastInsertId()
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
-	log.Printf("item id is %d", itemId)
 
 	return itemId, tx.Commit()
 }
 
 func (t TransactionHistorySqlite) GetAll() ([]model.Transaction, error) {
+	logrus.Print("Запрос на получение всех кошельков в базе")
 	transactions := make([]model.Transaction, 0)
 	rows, err := t.db.Query("select tr.id, tr.transfer_amount, tr.transfer_time, w.address, w1.address from transaction_history tr INNER JOIN wallet w on w.id = tr.from_id INNER JOIN wallet w1 on w1.id = tr.to_id")
 	if err != nil {
@@ -69,17 +72,14 @@ func (t TransactionHistorySqlite) GetAll() ([]model.Transaction, error) {
 }
 
 func (t TransactionHistorySqlite) GetById(transaction int) (model.Transaction, error) {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (t TransactionHistorySqlite) Update(transaction model.Transaction) error {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (t TransactionHistorySqlite) Delete(id int) error {
-	//TODO implement me
 	panic("implement me")
 }
 

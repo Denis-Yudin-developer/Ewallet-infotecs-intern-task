@@ -3,11 +3,13 @@ package handlers
 import (
 	"Ewallet-infotecs/internal/model"
 	"encoding/json"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) Send(w http.ResponseWriter, r *http.Request) {
+	logrus.Print("Запрос на маршрут /send")
 	var transaction model.Transaction
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&transaction); err != nil {
@@ -22,10 +24,12 @@ func (h *Handler) Send(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := map[string]int64{"id": id}
+	logrus.Printf("id транзакции: %d", res["id"])
 	respondWithJSON(w, http.StatusOK, res)
 }
 
 func (h *Handler) GetLast(w http.ResponseWriter, r *http.Request) {
+	logrus.Print("Запрос на маршрут /transactions?count=N")
 	queryParams := r.URL.Query()
 	n, err := strconv.Atoi(queryParams.Get("count"))
 	if err != nil {

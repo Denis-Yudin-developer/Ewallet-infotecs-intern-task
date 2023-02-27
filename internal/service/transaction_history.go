@@ -3,8 +3,10 @@ package service
 import (
 	"Ewallet-infotecs/internal/model"
 	"Ewallet-infotecs/internal/repository"
+	"Ewallet-infotecs/pkg/floats"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type TransactionHistoryService struct {
@@ -22,6 +24,11 @@ func (t TransactionHistoryService) LastNTransaction(transactionNumbers int) ([]m
 }
 
 func (t TransactionHistoryService) Create(transaction model.Transaction) (int64, error) {
+	if transaction.TransferAmount < 0 {
+		errorMessage := "Нельзя переводить отрицательную сумму "
+		return 0, errors.New(errorMessage)
+	}
+
 	if transaction.FromAddress == transaction.ToAddress {
 		errorMessage := "Невозможно совершить транзакцию на свой адрес"
 		return 0, errors.New(errorMessage)
@@ -37,8 +44,11 @@ func (t TransactionHistoryService) Create(transaction model.Transaction) (int64,
 		return 0, err
 	}
 
-	if from.Balance < transaction.TransferAmount {
-		errorMessage := fmt.Sprintf("НА КОШЕЛЬКЕ %s НЕДОСТАТОЧНО ДЕНЕГ.", from.Address)
+	fromCorrectBalance := floats.NewFloatHandler(from.Balance)
+	toCorrectBalance := floats.NewFloatHandler(to.Balance)
+
+	if fromCorrectBalance.LessThan(transaction.TransferAmount) {
+		errorMessage := fmt.Sprintf("НА КОШЕЛЬКЕ НЕДОСТАТОЧНО ДЕНЕГ.")
 		return 0, errors.New(errorMessage)
 	}
 
@@ -47,14 +57,18 @@ func (t TransactionHistoryService) Create(transaction model.Transaction) (int64,
 		return 0, err
 	}
 
-	from.Balance -= transaction.TransferAmount
+	fromCorrectBalance.Sub(transaction.TransferAmount)
+	logrus.Print(fromCorrectBalance)
+	from.Balance, _ = fromCorrectBalance.ConvertToFloat64()
 
 	err = t.walletRepo.Update(from)
 	if err != nil {
 		return 0, nil
 	}
 
-	to.Balance += transaction.TransferAmount
+	toCorrectBalance = toCorrectBalance.Add(transaction.TransferAmount)
+	to.Balance, _ = toCorrectBalance.ConvertToFloat64()
+
 	err = t.walletRepo.Update(to)
 	if err != nil {
 		return 0, err
@@ -64,22 +78,18 @@ func (t TransactionHistoryService) Create(transaction model.Transaction) (int64,
 }
 
 func (t TransactionHistoryService) GetAll() ([]model.Transaction, error) {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (t TransactionHistoryService) GetById(transaction int) (model.Transaction, error) {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (t TransactionHistoryService) Update(transaction model.Transaction) error {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (t TransactionHistoryService) Delete(id int) error {
-	//TODO implement me
 	panic("implement me")
 }
 
