@@ -1,6 +1,8 @@
 # Ewallet-infotecs-intern-task
 Ссылка на гитхаб - https://github.com/lty2107/Ewallet-infotecs-intern-task
+
 собрать приложение - docker build -t ewallet-infotecs .
+
 запустить - docker run -p 8080:8080 ewallet-infotecs 
 
 API endpoints:
