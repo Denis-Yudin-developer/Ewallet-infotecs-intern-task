@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"Ewallet-infotecs/internal/seeds"
 	"database/sql"
-	"github.com/pressly/goose"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,10 +15,6 @@ func NewSqliteDb(driverName, dataSourceName string) (*sql.DB, error) {
 	if err != nil {
 		logrus.Fatalf("failed to ping db: %s", err.Error())
 	}
-
-	err = goose.Up(db, ".")
-	if err != nil {
-		return nil, err
-	}
+	seeds.WalletSeed(db)
 	return db, nil
 }
